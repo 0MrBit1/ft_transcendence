@@ -1,0 +1,29 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.pong-canvas {
+  border: 2px solid #61dafb;
+  margin: 20px 0;
+  background-color: #000;
+}
+
+.App-header h1 {
+  margin-bottom: 20px;
+}
+
+.App-header p {
+  font-size: 16px;
+  color: #61dafb;
+}
