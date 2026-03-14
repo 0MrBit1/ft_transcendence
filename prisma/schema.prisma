@@ -1,0 +1,277 @@
+// ─────────────────────────────────────────────────────────
+// UniClubs — Prisma Schema
+// ─────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════
+// ENUMS
+// ═══════════════════════════════════════════════════════════
+
+enum UserRole {
+  USER
+  ORG_ADMIN
+  SUPER_ADMIN
+}
+
+enum OrgRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OrgMemberRole {
+  ADMIN
+  MEMBER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum EventType {
+  PUBLIC
+  PRIVATE
+}
+
+enum LocationType {
+  ONLINE
+  PHYSICAL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum NotificationType {
+  ORG_REQUEST_SUBMITTED
+  ORG_REQUEST_APPROVED
+  ORG_REQUEST_REJECTED
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  EVENT_PUBLISHED
+  EVENT_CANCELLED
+  GENERAL
+}
+
+// ═══════════════════════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════════════════════
+
+model User {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  password            String
+  firstName           String    @map("first_name")
+  lastName            String    @map("last_name")
+  avatarUrl           String?   @map("avatar_url")
+  role                UserRole  @default(USER)
+  onboardingCompleted Boolean   @default(false) @map("onboarding_completed")
+  isBanned            Boolean   @default(false) @map("is_banned")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  interests         UserInterest[]
+  orgRequests       OrganizationRequest[]   @relation("OrgRequestCreator")
+  memberships       OrganizationMember[]
+  bookings          Booking[]
+  notifications     Notification[]
+  reviewedRequests  OrganizationRequest[]   @relation("OrgRequestReviewer")
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// ═══════════════════════════════════════════════════════════
+// INTERESTS / TAGS
+// ═══════════════════════════════════════════════════════════
+
+model Interest {
+  id        String   @id @default(uuid())
+  name      String   @unique              // e.g. "sports", "music", "tech"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  users UserInterest[]
+
+  @@map("interests")
+}
+
+model UserInterest {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  interestId String   @map("interest_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, interestId])
+  @@index([userId])
+  @@map("user_interests")
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORGANIZATION REQUESTS (approval workflow)
+// ═══════════════════════════════════════════════════════════
+
+model OrganizationRequest {
+  id             String           @id @default(uuid())
+  name           String                                  // requested org name
+  description    String?
+  status         OrgRequestStatus @default(PENDING)
+  rejectionReason String?         @map("rejection_reason")
+  requestedById  String           @map("requested_by_id")
+  reviewedById   String?          @map("reviewed_by_id")
+  reviewedAt     DateTime?        @map("reviewed_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  requestedBy User          @relation("OrgRequestCreator", fields: [requestedById], references: [id], onDelete: Cascade)
+  reviewedBy  User?         @relation("OrgRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  organization Organization? // created on approval
+
+  @@index([status])
+  @@index([requestedById])
+  @@map("organization_requests")
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORGANIZATIONS
+// ═══════════════════════════════════════════════════════════
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  logoUrl     String?  @map("logo_url")
+  requestId   String   @unique @map("request_id")  // link back to the approved request
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  request  OrganizationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  members  OrganizationMember[]
+  events   Event[]
+
+  @@map("organizations")
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORGANIZATION MEMBERS
+// ═══════════════════════════════════════════════════════════
+
+model OrganizationMember {
+  id             String        @id @default(uuid())
+  organizationId String        @map("organization_id")
+  userId         String        @map("user_id")
+  role           OrgMemberRole @default(MEMBER)
+  joinedAt       DateTime      @default(now()) @map("joined_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+// ═══════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════
+
+model Event {
+  id                String       @id @default(uuid())
+  title             String
+  description       String?
+  type              EventType    @default(PUBLIC)
+  startTime         DateTime     @map("start_time")
+  endTime           DateTime?    @map("end_time")
+  locationType      LocationType @default(PHYSICAL) @map("location_type")
+  location          String?
+  status            EventStatus  @default(DRAFT)
+  capacity          Int?
+  remainingCapacity Int?         @map("remaining_capacity")  // denormalized for perf
+  organizationId    String       @map("organization_id")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  tags         EventTag[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([startTime])
+  @@map("events")
+}
+
+model EventTag {
+  id       String @id @default(uuid())
+  eventId  String @map("event_id")
+  tag      String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, tag])
+  @@index([tag])
+  @@map("event_tags")
+}
+
+// ═══════════════════════════════════════════════════════════
+// BOOKINGS
+// ═══════════════════════════════════════════════════════════
+
+model Booking {
+  id        String        @id @default(uuid())
+  eventId   String        @map("event_id")
+  userId    String        @map("user_id")
+  status    BookingStatus @default(PENDING)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("bookings")
+}
+
+// ═══════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  metadata  Json?            @db.JsonB        // arbitrary payload
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}

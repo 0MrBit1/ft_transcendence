@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniClubs — Create Event</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="logo">🎓 UniClubs</a>
+  <div class="nav-links">
+    <a href="/">Events</a>
+    <a href="/create.html" class="active">Create Event</a>
+    <a href="/api/docs" target="_blank">API Docs</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Create Event</h1>
+    <p class="subtitle">Fill in the details below to create a new event</p>
+  </div>
+
+  <form id="create-form" class="form-card">
+
+    <!-- Organization -->
+    <div class="form-group">
+      <label for="organizationId">Organization</label>
+      <select id="organizationId" name="organizationId" required>
+        <option value="">Loading organizations…</option>
+      </select>
+    </div>
+
+    <!-- Title -->
+    <div class="form-group">
+      <label for="title">Event Title</label>
+      <input id="title" name="title" type="text" required placeholder="e.g. Tech Meetup 2026" />
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description">Description <span class="optional">(optional)</span></label>
+      <textarea id="description" name="description" rows="3" placeholder="What is this event about?"></textarea>
+    </div>
+
+    <!-- Type + Visibility row -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="type">Event Type</label>
+        <select id="type" name="type">
+          <option value="PUBLIC">Public</option>
+          <option value="PRIVATE">Private</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="locationType">Location Type</label>
+        <select id="locationType" name="locationType">
+          <option value="PHYSICAL">Physical</option>
+          <option value="ONLINE">Online</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+      <label for="location">Location <span class="optional">(optional)</span></label>
+      <input id="location" name="location" type="text" placeholder="e.g. Room 101, Main Building" />
+    </div>
+
+    <!-- Date row -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startTime">Start Date &amp; Time</label>
+        <input id="startTime" name="startTime" type="datetime-local" required />
+      </div>
+      <div class="form-group">
+        <label for="endTime">End Date &amp; Time <span class="optional">(optional)</span></label>
+        <input id="endTime" name="endTime" type="datetime-local" />
+      </div>
+    </div>
+
+    <!-- Capacity -->
+    <div class="form-group">
+      <label for="capacity">Capacity <span class="optional">(leave empty for unlimited)</span></label>
+      <input id="capacity" name="capacity" type="number" min="1" placeholder="e.g. 100" />
+    </div>
+
+    <!-- Tags -->
+    <div class="form-group">
+      <label for="tags">Tags <span class="optional">(comma-separated)</span></label>
+      <input id="tags" name="tags" type="text" placeholder="e.g. tech, networking, meetup" />
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg">Create Event</button>
+      <a href="/" class="btn btn-secondary btn-lg">Cancel</a>
+    </div>
+  </form>
+</main>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/create.js"></script>
+</body>
+</html>
