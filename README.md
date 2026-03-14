@@ -91,19 +91,19 @@ Web
 	•	Major (2) Public API (API key + rate limiting + docs)
 	•	Minor (1) ORM
 	•	Minor (1) File upload
-	•	Minor (1) Notifications Subtotal: 11
+	•	Minor (1) NotificationsSubtotal: 11
 User Management
 	•	Major (2) Standard user management
 	•	Major (2) Advanced permissions
-	•	Major (2) Organization system Subtotal: 6
+	•	Major (2) Organization systemSubtotal: 6
 AI
-	•	Minor (1) Content moderation AI (chat flagging) Subtotal: 1
+	•	Minor (1) Content moderation AI (chat flagging)Subtotal: 1
 Accessibility
 	•	Minor (1) Multi-language
-	•	Minor (1) RTL Subtotal: 2
+	•	Minor (1) RTLSubtotal: 2
 DevOps
-	•	Minor (1) Healthchecks + backup/restore Subtotal: 1
-✅ Total target: 21 points Even if one module is not accepted, you remain safely above the minimum.
+	•	Minor (1) Healthchecks + backup/restoreSubtotal: 1
+✅ Total target: 21 pointsEven if one module is not accepted, you remain safely above the minimum.
 
 8. System Architecture Overview
 Frontend Pages
