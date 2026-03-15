@@ -5,3 +5,6 @@ dist/
 coverage/
 .next/
 docker-data/
+__pycache__/
+*.pyc
+venv/

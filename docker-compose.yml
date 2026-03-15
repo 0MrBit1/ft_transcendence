@@ -32,7 +32,7 @@ services:
   # ── Backend (NestJS) ────────────────────────────────────
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
@@ -40,18 +40,46 @@ services:
     env_file:
       - .env
     volumes:
-      # Mount source for live editing — node_modules stays in container
-      - ./src:/app/src
-      - ./prisma:/app/prisma
-      - ./public:/app/public
-      - ./nest-cli.json:/app/nest-cli.json
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./tsconfig.build.json:/app/tsconfig.build.json
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - ./backend/public:/app/public
+      - ./backend/nest-cli.json:/app/nest-cli.json
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/tsconfig.build.json:/app/tsconfig.build.json
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  # ── Frontend (Next.js) ─────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:4000/api/v1
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    depends_on:
+      - backend
+
+  # ── Moderation (Flask) ─────────────────────────────────
+  moderation:
+    build:
+      context: ./moderation
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    volumes:
+      - ./moderation:/app
 
 volumes:
   pgdata:
