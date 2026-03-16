@@ -7,6 +7,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ChatService } from './chat.service';
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway implements OnGatewayDisconnect {
@@ -14,6 +15,7 @@ export class ChatGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;                        // the Socket.IO server instance
 
+  constructor(private chatService: ChatService) {} // inject the chat service to access DB
   // ─── user joins a room ───────────────────────────────────────────
   @SubscribeMessage('join_event')
   handleJoin(
@@ -37,24 +39,22 @@ export class ChatGateway implements OnGatewayDisconnect {
 
   // ─── user sends a message ────────────────────────────────────────
   @SubscribeMessage('send_message')
-  handleMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { eventId: string; userId: string; content: string },
-  ) {
-    const room = `event:${payload.eventId}`;
+async handleMessage(
+  @ConnectedSocket() client: Socket,
+  @MessageBody() body: { eventId: string; userId: string; username: string; content: string },
+) {
+  // save to DB
+  const saved = await this.chatService.saveMessage({
+    eventId: body.eventId,
+    userId: body.userId,
+    username: body.username,
+    content: body.content,
+  });
 
-    const message = {
-      userId: payload.userId,
-      content: payload.content,
-      createdAt: new Date(),
-    };
-
-    // broadcast ONLY to users in this event room
-    this.server.to(room).emit('new_message', message);
-
-    // TODO: save message to DB (Prisma)
-    // TODO: call moderation service (Prizmo)
-  }
+  // broadcast to room
+  this.server.to(`event:${body.eventId}`).emit('new_message', saved);
+  // TODO: call moderation service (Prizmo)
+}
 
   // ─── user leaves or disconnects ──────────────────────────────────
   handleDisconnect(client: Socket) {

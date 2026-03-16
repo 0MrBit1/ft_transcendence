@@ -275,3 +275,20 @@ model Notification {
   @@index([userId, createdAt])
   @@map("notifications")
 }
+
+
+// ═══════════════════════════════════════════════════════════
+// CHAT MESSAGES (for event chat) (youssef)
+// ═══════════════════════════════════════════════════════════
+model EventChatMessage {
+  id          String   @id @default(uuid())
+  eventId     String   @map("event_id")
+  userId      String   @map("user_id")
+  username    String
+  content     String
+  isModerated Boolean  @default(false) @map("is_moderated")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([eventId, createdAt])
+  @@map("event_chat_messages")
+}

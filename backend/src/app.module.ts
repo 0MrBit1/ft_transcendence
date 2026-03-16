@@ -7,7 +7,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { EventsModule } from './events/events.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { ChatModule } from './chat/chat.module';
+import { ChatModule } from './chat/chat.module'; // i add this import (youssef)
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { ChatModule } from './chat/chat.module';
     EventsModule,
     BookingsModule,
     NotificationsModule,
-    ChatModule,
+    ChatModule, // i add this model (youssef)
   ],
 })
 export class AppModule {}
