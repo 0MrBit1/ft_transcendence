@@ -3,6 +3,6 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": false // i changes this flag to false to prevent deletion of the output directory dist (youssef)
+    "deleteOutDir": false
   }
 }

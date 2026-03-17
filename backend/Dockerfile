@@ -13,7 +13,9 @@ RUN npx prisma generate
 # Copy source
 COPY . .
 
+# Make entrypoint executable
+RUN chmod +x entrypoint.sh
+
 EXPOSE 4000
 
-# Dev: run migrations, seed, then start watch mode
-CMD sh -c "npx prisma migrate deploy && npx prisma db seed && npm run dev"
+ENTRYPOINT ["./entrypoint.sh"]

@@ -4,3 +4,10 @@ dist
 .env
 *.log
 .git
+.gitignore
+Dockerfile
+.dockerignore
+docker-compose*
+README*
+coverage
+*.md
