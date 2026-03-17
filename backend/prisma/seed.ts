@@ -20,6 +20,7 @@ async function main() {
     console.log(`  ✓ Interest: ${interest.name}`);
   }
 
+  
   // ── 2) SUPER_ADMIN user ───────────────────────────────
   const adminPassword = await bcrypt.hash('Admin@1234', 12);
   const admin = await prisma.user.upsert({
