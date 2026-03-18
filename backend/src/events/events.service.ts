@@ -4,15 +4,15 @@ import { CreateEventDto } from './dto/create-event.dto';
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: CreateEventDto) {
-    // Verify the organization exists
-    const org = await this.prisma.organization.findUnique({
-      where: { id: dto.organizationId },
+    // Verify the organizer exists
+    const organizer = await this.prisma.user.findUnique({
+      where: { id: dto.organizerId },
     });
-    if (!org) {
-      throw new NotFoundException('Organization not found');
+    if (!organizer || !organizer.isOrganizer) {
+      throw new NotFoundException('Organizer not found or user is not an organizer');
     }
 
     const { tags, ...eventData } = dto;
@@ -28,14 +28,14 @@ export class EventsService {
         location: eventData.location,
         capacity: eventData.capacity ?? null,
         remainingCapacity: eventData.capacity ?? null,
-        organizationId: eventData.organizationId,
+        organizerId: eventData.organizerId,
         tags: tags?.length
           ? { create: tags.map((tag) => ({ tag })) }
           : undefined,
       },
       include: {
         tags: true,
-        organization: { select: { id: true, name: true } },
+        organizer: { select: { id: true, firstName: true, lastName: true } },
       },
     });
 
@@ -65,7 +65,7 @@ export class EventsService {
         orderBy: { startTime: 'asc' },
         include: {
           tags: true,
-          organization: { select: { id: true, name: true } },
+          organizer: { select: { id: true, firstName: true, lastName: true } },
         },
       }),
       this.prisma.event.count({ where }),
@@ -87,7 +87,7 @@ export class EventsService {
       orderBy: { createdAt: 'desc' },
       include: {
         tags: true,
-        organization: { select: { id: true, name: true } },
+        organizer: { select: { id: true, firstName: true, lastName: true } },
       },
     });
     return { data: events, meta: { total: events.length } };
@@ -98,7 +98,7 @@ export class EventsService {
       where: { id },
       include: {
         tags: true,
-        organization: { select: { id: true, name: true } },
+        organizer: { select: { id: true, firstName: true, lastName: true } },
       },
     });
 

@@ -20,7 +20,6 @@ async function main() {
     console.log(`  ✓ Interest: ${interest.name}`);
   }
 
-  
   // ── 2) SUPER_ADMIN user ───────────────────────────────
   const adminPassword = await bcrypt.hash('Admin@1234', 12);
   const admin = await prisma.user.upsert({
@@ -33,11 +32,12 @@ async function main() {
       lastName: 'Admin',
       role: UserRole.SUPER_ADMIN,
       onboardingCompleted: true,
+      isOrganizer: true,
     },
   });
   console.log(`  ✓ SUPER_ADMIN: ${admin.email} (password: Admin@1234)`);
 
-  // ── 3) Normal user 1 ─────────────────────────────────
+  // ── 3) Normal user 1 (organizer) ──────────────────────
   const user1Password = await bcrypt.hash('User@1234', 12);
   const user1 = await prisma.user.upsert({
     where: { email: 'alice@uniclubs.com' },
@@ -48,10 +48,11 @@ async function main() {
       firstName: 'Alice',
       lastName: 'Johnson',
       role: UserRole.USER,
+      isOrganizer: true,
       onboardingCompleted: true,
     },
   });
-  console.log(`  ✓ USER: ${user1.email} (password: User@1234)`);
+  console.log(`  ✓ USER (organizer): ${user1.email} (password: User@1234)`);
 
   // Assign interests to user1
   for (const interest of interests) {
@@ -87,41 +88,7 @@ async function main() {
   });
   console.log(`    → interests: ${interests[0].name}`);
 
-  // ── 5) Test Organization (with approved request) ──────
-  const orgRequest = await prisma.organizationRequest.upsert({
-    where: { id: 'seed-org-request-1' },
-    update: {},
-    create: {
-      id: 'seed-org-request-1',
-      name: 'Tech Society',
-      description: 'A club for tech enthusiasts',
-      status: 'APPROVED',
-      requestedById: user1.id,
-      reviewedById: admin.id,
-      reviewedAt: new Date(),
-    },
-  });
-
-  const org = await prisma.organization.upsert({
-    where: { requestId: orgRequest.id },
-    update: {},
-    create: {
-      name: 'Tech Society',
-      description: 'A club for tech enthusiasts',
-      requestId: orgRequest.id,
-    },
-  });
-  console.log(`  ✓ Organization: ${org.name} (id: ${org.id})`);
-
-  // Make user1 an ADMIN of the org
-  await prisma.organizationMember.upsert({
-    where: { organizationId_userId: { organizationId: org.id, userId: user1.id } },
-    update: {},
-    create: { organizationId: org.id, userId: user1.id, role: 'ADMIN' },
-  });
-  console.log(`    → Alice is ADMIN`);
-
-  // ── 6) Sample Events ─────────────────────────────────
+  // ── 5) Sample Events (organized by user1) ─────────────
   const event1 = await prisma.event.upsert({
     where: { id: 'seed-event-1' },
     update: {},
@@ -137,7 +104,7 @@ async function main() {
       location: 'Room 101, Main Building',
       capacity: 100,
       remainingCapacity: 100,
-      organizationId: org.id,
+      organizerId: user1.id,
       tags: {
         create: [{ tag: 'tech' }, { tag: 'networking' }],
       },
@@ -160,7 +127,7 @@ async function main() {
       location: 'Innovation Lab, Building C',
       capacity: 50,
       remainingCapacity: 50,
-      organizationId: org.id,
+      organizerId: user1.id,
       tags: {
         create: [{ tag: 'hackathon' }, { tag: 'coding' }],
       },
@@ -183,10 +150,45 @@ async function main() {
       location: null,
       capacity: null,
       remainingCapacity: null,
-      organizationId: org.id,
+      organizerId: user1.id,
     },
   });
   console.log(`  ✓ Event: ${event3.title} (DRAFT)`);
+
+  // ── 6) Sample Bookings ────────────────────────────────
+  const booking1 = await prisma.booking.upsert({
+    where: { eventId_userId: { eventId: event1.id, userId: user2.id } },
+    update: {},
+    create: {
+      eventId: event1.id,
+      userId: user2.id,
+      status: 'CONFIRMED',
+    },
+  });
+  console.log(`  ✓ Booking: Bob → ${event1.title} (CONFIRMED)`);
+
+  const booking2 = await prisma.booking.upsert({
+    where: { eventId_userId: { eventId: event2.id, userId: user2.id } },
+    update: {},
+    create: {
+      eventId: event2.id,
+      userId: user2.id,
+      status: 'PENDING',
+    },
+  });
+  console.log(`  ✓ Booking: Bob → ${event2.title} (PENDING)`);
+
+  // ── 7) Sample Notifications ───────────────────────────
+  await prisma.notification.create({
+    data: {
+      userId: user2.id,
+      type: 'BOOKING_CONFIRMED',
+      title: 'Booking Confirmed',
+      message: `Your booking for "${event1.title}" has been confirmed!`,
+      metadata: { eventId: event1.id },
+    },
+  });
+  console.log(`  ✓ Notification: Booking confirmed for Bob`);
 
   console.log('\n✅ Seed complete!');
 }

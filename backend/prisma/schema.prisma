@@ -74,6 +74,7 @@ model User {
   events        Event[]          @relation("EventOrganizer")
   bookings      Booking[]
   notifications Notification[]
+  chatMessages  EventChatMessage[]
 
   @@index([email])
   @@index([role])
@@ -129,9 +130,10 @@ model Event {
   updatedAt         DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  organizer User       @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
-  bookings  Booking[]
-  tags      EventTag[]
+  organizer    User               @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  tags         EventTag[]
+  chatMessages EventChatMessage[]
 
   @@index([organizerId])
   @@index([status])
@@ -204,7 +206,7 @@ model EventChatMessage {
   content     String
   isModerated Boolean  @default(false) @map("is_moderated")
   createdAt   DateTime @default(now()) @map("created_at")
-  
+
   // Relations
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
