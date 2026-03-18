@@ -17,19 +17,7 @@ datasource db {
 
 enum UserRole {
   USER
-  ORG_ADMIN
   SUPER_ADMIN
-}
-
-enum OrgRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum OrgMemberRole {
-  ADMIN
-  MEMBER
 }
 
 enum EventStatus {
@@ -56,9 +44,6 @@ enum BookingStatus {
 }
 
 enum NotificationType {
-  ORG_REQUEST_SUBMITTED
-  ORG_REQUEST_APPROVED
-  ORG_REQUEST_REJECTED
   BOOKING_CONFIRMED
   BOOKING_CANCELLED
   EVENT_PUBLISHED
@@ -78,18 +63,18 @@ model User {
   lastName            String    @map("last_name")
   avatarUrl           String?   @map("avatar_url")
   role                UserRole  @default(USER)
+  isOrganizer         Boolean   @default(false) @map("is_organizer") // can create events and manage join requests
   onboardingCompleted Boolean   @default(false) @map("onboarding_completed")
   isBanned            Boolean   @default(false) @map("is_banned")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  interests         UserInterest[]
-  orgRequests       OrganizationRequest[]   @relation("OrgRequestCreator")
-  memberships       OrganizationMember[]
-  bookings          Booking[]
-  notifications     Notification[]
-  reviewedRequests  OrganizationRequest[]   @relation("OrgRequestReviewer")
+  interests     UserInterest[]
+  events        Event[]          @relation("EventOrganizer")
+  bookings      Booking[]
+  notifications Notification[]
+  chatMessages  EventChatMessage[]
 
   @@index([email])
   @@index([role])
@@ -125,73 +110,6 @@ model UserInterest {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ORGANIZATION REQUESTS (approval workflow)
-// ═══════════════════════════════════════════════════════════
-
-model OrganizationRequest {
-  id             String           @id @default(uuid())
-  name           String                                  // requested org name
-  description    String?
-  status         OrgRequestStatus @default(PENDING)
-  rejectionReason String?         @map("rejection_reason")
-  requestedById  String           @map("requested_by_id")
-  reviewedById   String?          @map("reviewed_by_id")
-  reviewedAt     DateTime?        @map("reviewed_at")
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-
-  // Relations
-  requestedBy User          @relation("OrgRequestCreator", fields: [requestedById], references: [id], onDelete: Cascade)
-  reviewedBy  User?         @relation("OrgRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
-  organization Organization? // created on approval
-
-  @@index([status])
-  @@index([requestedById])
-  @@map("organization_requests")
-}
-
-// ═══════════════════════════════════════════════════════════
-// ORGANIZATIONS
-// ═══════════════════════════════════════════════════════════
-
-model Organization {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  logoUrl     String?  @map("logo_url")
-  requestId   String   @unique @map("request_id")  // link back to the approved request
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  request  OrganizationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  members  OrganizationMember[]
-  events   Event[]
-
-  @@map("organizations")
-}
-
-// ═══════════════════════════════════════════════════════════
-// ORGANIZATION MEMBERS
-// ═══════════════════════════════════════════════════════════
-
-model OrganizationMember {
-  id             String        @id @default(uuid())
-  organizationId String        @map("organization_id")
-  userId         String        @map("user_id")
-  role           OrgMemberRole @default(MEMBER)
-  joinedAt       DateTime      @default(now()) @map("joined_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([organizationId, userId])
-  @@index([organizationId])
-  @@index([userId])
-  @@map("organization_members")
-}
-
-// ═══════════════════════════════════════════════════════════
 // EVENTS
 // ═══════════════════════════════════════════════════════════
 
@@ -207,25 +125,26 @@ model Event {
   status            EventStatus  @default(DRAFT)
   capacity          Int?
   remainingCapacity Int?         @map("remaining_capacity")  // denormalized for perf
-  organizationId    String       @map("organization_id")
+  organizerId       String       @map("organizer_id")
   createdAt         DateTime     @default(now()) @map("created_at")
   updatedAt         DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizer    User               @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
   bookings     Booking[]
   tags         EventTag[]
+  chatMessages EventChatMessage[]
 
-  @@index([organizationId])
+  @@index([organizerId])
   @@index([status])
   @@index([startTime])
   @@map("events")
 }
 
 model EventTag {
-  id       String @id @default(uuid())
-  eventId  String @map("event_id")
-  tag      String
+  id      String @id @default(uuid())
+  eventId String @map("event_id")
+  tag     String
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
@@ -235,7 +154,7 @@ model EventTag {
 }
 
 // ═══════════════════════════════════════════════════════════
-// BOOKINGS
+// BOOKINGS  (join requests — organizer can CONFIRM or CANCEL)
 // ═══════════════════════════════════════════════════════════
 
 model Booking {
@@ -274,4 +193,25 @@ model Notification {
   @@index([userId, isRead])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHAT MESSAGES (for event chat) (youssef)
+// ═══════════════════════════════════════════════════════════
+model EventChatMessage {
+  id          String   @id @default(uuid())
+  eventId     String   @map("event_id")
+  userId      String   @map("user_id")
+  username    String
+  content     String
+  isModerated Boolean  @default(false) @map("is_moderated")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, createdAt])
+  @@index([userId])
+  @@map("event_chat_messages")
 }

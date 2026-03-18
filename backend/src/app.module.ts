@@ -3,10 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
-import { OrganizationsModule } from './organizations/organizations.module';
 import { EventsModule } from './events/events.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ChatModule } from './chat/chat.module'; // i add this import (youssef)
 
 @Module({
   imports: [
@@ -24,10 +24,10 @@ import { NotificationsModule } from './notifications/notifications.module';
     PrismaModule,
 
     // Feature modules
-    OrganizationsModule,
     EventsModule,
     BookingsModule,
     NotificationsModule,
+    ChatModule, // i add this model (youssef)
   ],
 })
-export class AppModule {}
+export class AppModule { }

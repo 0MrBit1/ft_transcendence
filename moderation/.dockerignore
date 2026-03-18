@@ -3,4 +3,10 @@ __pycache__
 .env
 *.log
 .git
+.gitignore
 venv
+Dockerfile
+.dockerignore
+docker-compose*
+README*
+*.md

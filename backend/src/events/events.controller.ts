@@ -17,10 +17,10 @@ import { UpdateEventDto } from './dto/update-event.dto';
 @ApiTags('Events')
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(private readonly eventsService: EventsService) { }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new event for an organization' })
+  @ApiOperation({ summary: 'Create a new event' })
   create(@Body() dto: CreateEventDto) {
     return this.eventsService.create(dto);
   }
