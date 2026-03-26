@@ -3,6 +3,11 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+// Stable UUIDs for seed data (so controller's ParseUUIDPipe accepts them)
+const SEED_EVENT_1 = '00000000-0000-4000-a000-000000000001';
+const SEED_EVENT_2 = '00000000-0000-4000-a000-000000000002';
+const SEED_EVENT_3 = '00000000-0000-4000-a000-000000000003';
+
 async function main() {
   console.log('🌱 Seeding database...\n');
 
@@ -90,10 +95,10 @@ async function main() {
 
   // ── 5) Sample Events (organized by user1) ─────────────
   const event1 = await prisma.event.upsert({
-    where: { id: 'seed-event-1' },
+    where: { id: SEED_EVENT_1 },
     update: {},
     create: {
-      id: 'seed-event-1',
+      id: SEED_EVENT_1,
       title: 'Tech Meetup 2026',
       description: 'A meetup for tech enthusiasts — demos, talks, networking.',
       type: 'PUBLIC',
@@ -113,10 +118,10 @@ async function main() {
   console.log(`  ✓ Event: ${event1.title} (PUBLISHED)`);
 
   const event2 = await prisma.event.upsert({
-    where: { id: 'seed-event-2' },
+    where: { id: SEED_EVENT_2 },
     update: {},
     create: {
-      id: 'seed-event-2',
+      id: SEED_EVENT_2,
       title: 'Hackathon Spring 2026',
       description: '24-hour hackathon open to all university students.',
       type: 'PUBLIC',
@@ -136,10 +141,10 @@ async function main() {
   console.log(`  ✓ Event: ${event2.title} (PUBLISHED)`);
 
   const event3 = await prisma.event.upsert({
-    where: { id: 'seed-event-3' },
+    where: { id: SEED_EVENT_3 },
     update: {},
     create: {
-      id: 'seed-event-3',
+      id: SEED_EVENT_3,
       title: 'Workshop: Intro to TypeScript',
       description: 'Beginner-friendly TypeScript workshop.',
       type: 'PUBLIC',

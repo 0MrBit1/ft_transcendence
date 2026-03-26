@@ -18,6 +18,17 @@ const api = {
     if (!res.ok) throw data;
     return data;
   },
+
+  async patch(path, body) {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await res.json();
+    if (!res.ok) throw data;
+    return data;
+  },
 };
 
 // ── Toast ──────────────────────────────────────────────
