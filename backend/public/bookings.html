@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniClubs — Bookings</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="logo">🎓 UniClubs</a>
+  <div class="nav-links">
+    <a href="/">Events</a>
+    <a href="/create.html">Create Event</a>
+    <a href="/bookings.html" class="active">Bookings</a>
+    <a href="/api/docs" target="_blank">API Docs</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Bookings Testing</h1>
+    <p class="subtitle">Test the booking module logic (Client and Organizer views)</p>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 2rem;">
+    <h2>Book an Event</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>User ID (Mock)</label>
+        <input id="create-user-id" type="text" placeholder="UUID of the user booking" />
+      </div>
+      <div class="form-group">
+        <label>Event ID</label>
+        <input id="create-event-id" type="text" placeholder="UUID of the event" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="btn-book" class="btn btn-primary">Book Event</button>
+    </div>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 2rem;">
+    <h2>View User Bookings</h2>
+    <div class="form-group">
+      <label>User ID</label>
+      <input id="view-user-id" type="text" placeholder="UUID of the user" />
+    </div>
+    <div class="form-actions">
+      <button id="btn-load-user-bookings" class="btn btn-primary">Load Bookings</button>
+    </div>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 2rem;">
+    <h2>Manage Event Bookings (Organizer)</h2>
+    <div class="form-group">
+      <label>Event ID</label>
+      <input id="view-event-id" type="text" placeholder="UUID of the event" />
+    </div>
+    <div class="form-actions">
+      <button id="btn-load-event-bookings" class="btn btn-primary">Load Bookings</button>
+    </div>
+  </div>
+
+  <!-- Bookings results grid -->
+  <div id="bookings-grid" class="events-grid"></div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/bookings.js"></script>
+</body>
+</html>

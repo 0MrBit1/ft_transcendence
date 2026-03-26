@@ -18,7 +18,7 @@ export class EventsService {
       where: { id },
       include: {
         tags: true,
-        organization: { select: { id: true, name: true } },
+        organizer: { select: { id: true, firstName: true, lastName: true } },
       },
     });
     if (!event) throw new NotFoundException('Event not found');
@@ -168,7 +168,7 @@ export class EventsService {
       data: { status: 'PUBLISHED' },
       include: {
         tags: true,
-        organization: { select: { id: true, name: true } },
+        organizer: { select: { id: true, firstName: true, lastName: true } },
       },
     });
   }
@@ -187,7 +187,7 @@ export class EventsService {
       data: { status: 'CANCELLED' },
       include: {
         tags: true,
-        organization: { select: { id: true, name: true } },
+        organizer: { select: { id: true, firstName: true, lastName: true } },
       },
     });
   }
