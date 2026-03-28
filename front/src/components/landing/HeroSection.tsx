@@ -26,7 +26,7 @@ const HeroSection = () => {
             className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] text-foreground"
           >
             Delightful events{" "}
-            <span className="text-primary">start here.</span>
+            <span className="text-accent">start here.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
