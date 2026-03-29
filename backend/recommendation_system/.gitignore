@@ -1,0 +1,15 @@
+__init__.py
+fractal*
+
+*.pycache
+*.egg-info
+
+.env
+
+__pycache__
+
+*.sqlite3
+*.json
+
+ignore*
+examples
