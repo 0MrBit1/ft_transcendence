@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniClubs — Events</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="logo">🎓 UniClubs</a>
+  <div class="nav-links">
+    <a href="/" class="active">Events</a>
+    <a href="/create.html">Create Event</a>
+    <a href="/bookings.html">Bookings</a>
+    <a href="/api/docs" target="_blank">API Docs</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Events</h1>
+    <p class="subtitle">Browse events across organizations</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <select id="filter-type">
+      <option value="">All Types</option>
+      <option value="PUBLIC">Public</option>
+      <option value="PRIVATE">Private</option>
+    </select>
+    <input id="filter-tag" type="text" placeholder="Filter by tag…" />
+    <button id="btn-search" class="btn btn-primary">Search</button>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-all" />
+      <span>Include drafts</span>
+    </label>
+  </div>
+
+  <!-- Events grid -->
+  <div id="events-grid" class="events-grid">
+    <p class="empty-state">Loading…</p>
+  </div>
+
+  <!-- Pagination -->
+  <div id="pagination" class="pagination"></div>
+</main>
+
+<!-- Event detail modal -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal">
+    <button id="modal-close" class="modal-close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/events.js"></script>
+</body>
+</html>

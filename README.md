@@ -1,322 +1,224 @@
-UniClubs
-ft_transcendence — Final Technical Architecture, Roles & Module Strategy (Team of 5)
+*This project has been created as part of the 42 curriculum by <login1>[, <login2>[, <login3>[...]]].*
 
-1. Project Definition
-UniClubs is a Social & Collaborative multi-user web application that enables:
-	•	Users to register and manage profiles
-	•	Users to discover events and book seats (capacity-controlled)
-	•	Organizations to be created via approval workflow
-	•	Organization admins to publish/manage events
-	•	Event-scoped real-time chat for attendees
-	•	Organization dashboard to track events & attendance
-The system enforces:
-	•	Strict server-side RBAC (roles + permissions)
-	•	Concurrency-safe booking logic (no overbooking)
-	•	Event-based chat isolation (only attendees)
-	•	Secure authentication & validation
-	•	Dockerized deployment with HTTPS
+# Ft_transcendence
 
-2. Real-Time Chat Model (Event-Based)
-Each event has a dedicated WebSocket room:
-event:<eventId>
-Only users with a CONFIRMED booking may:
-	•	Join the event room
-	•	Send/receive messages
-	•	Read paginated chat history
-If:
-	•	Booking cancelled → access revoked
-	•	Event cancelled → room closed/read-only
-Messages are stored in DB with cursor pagination.
-✅ Satisfies Real-Time Features (Major).
+## Description
+Transcendence is a group project (4-5 people), which is intended to boost your
+creativity, self-confidence, adaptability to new technologies, and teamwork skills.
+You’ll create a real-world web application as a team that can move in many directions,
+depending on the modules you choose and the choices you make. Make sure to think
+things through together as a team before you start.
+The project is divided into two parts:
 
-3. Organization Dashboard
-Each organization includes a dashboard for admins:
-	•	Events list (draft/published/cancelled)
-	•	Attendees count per event
-	•	Capacity remaining per event
-	•	Booking status breakdown (confirmed/pending/cancelled)
-	•	Basic trend (bookings over time)
-✅ Strengthens Organization System (Major) and improves product credibility.
+• The mandatory part, which is the fixed core of the project to which every team
+member must contribute.
 
-4. File Upload System (Minor Module)
-Uploads supported:
-	•	User avatars
-	•	Organization logos
-	•	Event cover images
-Rules:
-	•	Type validation (png/jpg/webp)
-	•	Size limits
-	•	Secure storage + URL stored in DB
-	•	Optional: delete/replace support
-✅ Counts as File Upload (Minor).
+• A set of modules, which you can choose and which count toward the final grade.
 
-5. Public API (Major Module)
-Expose a documented REST API with:
-	•	API key secured access for public endpoints
-	•	Rate limiting
-	•	Swagger/OpenAPI documentation
-	•	At least 5 endpoints (events, bookings, orgs, users, chat history)
-✅ Counts as Public API (Major).
+### Goal
+- [To be completed]
 
-6. Technical Stack (Locked)
-Frontend
-	•	Next.js (React + TypeScript)
-	•	Tailwind CSS + shadcn/ui
-	•	next-intl (EN/FR/AR)
-	•	RTL support
-Backend
-	•	NestJS (TypeScript)
-	•	JWT auth
-	•	bcrypt/argon2
-	•	class-validator
-	•	WebSocket gateway (socket.io)
-	•	Swagger docs
-	•	Rate limiting (throttler)
-Database
-	•	PostgreSQL
-	•	Prisma ORM + migrations
-	•	Transaction-safe booking logic
-Infrastructure / DevOps
-	•	Docker Compose (one command startup)
-	•	Caddy reverse proxy (HTTPS)
-	•	Healthchecks for services
-	•	.env ignored + .env.example
-	•	Backup + restore procedure (script + docs)
+### Brief Overview
+- [To be completed]
 
-7. Module Strategy & Points (High Safety)
-Web
-	•	Major (2) Frameworks (FE+BE)
-	•	Major (2) Real-time (WebSockets)
-	•	Major (2) User interaction (Chat + Profiles + Friends)
-	•	Major (2) Public API (API key + rate limiting + docs)
-	•	Minor (1) ORM
-	•	Minor (1) File upload
-	•	Minor (1) NotificationsSubtotal: 11
-User Management
-	•	Major (2) Standard user management
-	•	Major (2) Advanced permissions
-	•	Major (2) Organization systemSubtotal: 6
-AI
-	•	Minor (1) Content moderation AI (chat flagging)Subtotal: 1
-Accessibility
-	•	Minor (1) Multi-language
-	•	Minor (1) RTLSubtotal: 2
-DevOps
-	•	Minor (1) Healthchecks + backup/restoreSubtotal: 1
-✅ Total target: 21 pointsEven if one module is not accepted, you remain safely above the minimum.
+### Key Features (High-Level)
+- [Feature 1]
+- [Feature 2]
+- [Feature 3]
 
-8. System Architecture Overview
-Frontend Pages
-	•	Login / Register
-	•	Profile + avatar upload
-	•	Interests onboarding
-	•	Events feed (filters + pagination)
-	•	Event details + booking
-	•	My bookings
-	•	Event chat (attendees only)
-	•	Organization area (request + management)
-	•	Organization dashboard (tracking)
-	•	Admin approval panel
-Backend Modules
-	•	Auth
-	•	Users (profile, interests, friends)
-	•	Organizations + Requests
-	•	Events
-	•	Bookings
-	•	Event Chat (WS + history)
-	•	Uploads
-	•	Notifications
-	•	Public API key + rate limiting
-Database Core Tables
-	•	users
-	•	interests + user_interests
-	•	organizations
-	•	organization_requests
-	•	organization_members
-	•	events + event_tags
-	•	bookings
-	•	event_chat_messages
-	•	notifications
-	•	friends / friend_requests
-	•	uploads (or urls on entities)
-	•	api_keys
-Critical constraints:
-	•	Unique booking per (userId, eventId)
-	•	Capacity enforced with DB transaction / atomic update
-	•	FK integrity + indexes for feed + chat pagination
+---
 
-9. Technical Roles (Validated Final Distribution)
-Each engineer owns a subsystem end-to-end:
-	•	Architecture design
-	•	Implementation
-	•	Integration
-	•	Testing
-	•	Documentation
-	•	Evaluation explanation
-Subsystems interact only through clearly defined APIs.
+## Instructions
 
-ROLE 1 — Authentication & Identity Engineer (Rabi3)
-Owns:
-	•	Backend server bootstrap
-	•	Signup / login / logout
-	•	JWT access token + refresh token flow
-	•	Password hashing (bcrypt / argon2)
-	•	Authentication guards
-	•	Role-based access control (RBAC utilities)
-	•	Identity middleware
-	•	User profile endpoints
-	•	User interests storage
-Delivers:
-	•	/auth/*
-	•	/users/*
-	•	Token refresh system
-	•	Secure identity layer used across all modules
-Modules Covered:
-	•	Standard User Management (Major)
-	•	Advanced Permissions (Major)
+### Prerequisites
+- Operating System: [To be completed]
+- Docker: [version]
+- Docker Compose: [version]
+- Node.js: [version]
+- npm/yarn/pnpm: [version]
+- Python (if needed): [version]
+- Other tools: [To be completed]
 
-ROLE 2 — Organization, Events & Booking Engineer (Mouad)
-Owns:
-	•	Organization request + Super Admin approval workflow
-	•	Organization creation after approval
-	•	Organization members (ADMIN / MEMBER)
-	•	Event lifecycle:
-	•	Create
-	•	Edit
-	•	Publish
-	•	Cancel
-	•	Event scheduling (date / time / location)
-	•	Capacity configuration
-	•	Booking flow + status transitions
-	•	Booking cancellation logic
-	•	Organization dashboard endpoints (tracking events & attendance)
-Delivers:
-	•	/orgs/*
-	•	/events/*
-	•	/bookings/*
-	•	/admin/org-requests/*
-	•	/org-dashboard/*
-Modules Covered:
-	•	Organization System (Major)
-	•	Notifications (Minor)
+### Environment Configuration
+1. Copy/create environment files:
+	- [example: backend/.env]
+	- [example: frontend/.env.local]
+2. Fill required variables:
+	- [VAR_NAME_1]
+	- [VAR_NAME_2]
+	- [VAR_NAME_3]
 
-ROLE 3 — Moderation & Recommendation Engineer (Prizmo)
-Owns:
-	•	Chat moderation pipeline:
-	•	Message validation
-	•	Flagging inappropriate content
-	•	Hide / warn logic
-	•	AI moderation logic (if implemented)
-	•	Recommendation API:
-	•	Fetch events based on user interests
-	•	Match event tags with user interests
-	•	Apply filters (availability, date, etc.)
-Delivers:
-	•	/moderation/*
-	•	/events/recommended
-Important Boundary:
-	•	Does NOT manage event CRUD.
-	•	Reads events and user interests only.
-	•	Chat system calls moderation service before message persistence.
-Modules Covered:
-	•	AI Moderation (Minor)
+### Installation
+1. [To be completed]
+2. [To be completed]
+3. [To be completed]
 
-ROLE 4 — Full Chat System Engineer (Safae)
-Owns the Entire Event-Based Chat Subsystem
+### Run the Project
+1. [To be completed]
+2. [To be completed]
+3. [To be completed]
 
-1️⃣ Real-Time Backend (WebSocket Layer)
-	•	WebSocket gateway implementation
-	•	Event-based rooms:
-	•	event:<eventId>
-	•	Join validation:
-	•	User authenticated
-	•	Booking status = CONFIRMED
-	•	Message broadcasting
-	•	Disconnect/reconnect handling
-	•	Prevent unauthorized access
-	•	Integration with moderation service
+### Useful Commands
+- Start: [To be completed]
+- Stop: [To be completed]
+- Rebuild: [To be completed]
+- Tests: [To be completed]
+- Lint/Format: [To be completed]
 
-2️⃣ Chat Persistence Layer (Database)
-	•	event_chat_messages table
-	•	Indexing strategy for performance
-	•	Cursor-based pagination
-	•	Message moderation status fields (if needed)
-	•	Query optimization for chat history
+---
 
-3️⃣ Chat REST API
-	•	/chat/history?eventId=...
-	•	Paginated retrieval
-	•	Authorization validation
+## Team Information
 
-4️⃣ Chat Frontend (UI Only)
-	•	Chat component
-	•	WebSocket client integration
-	•	Real-time message rendering
-	•	Infinite scroll pagination
-	•	Moderated message display rules
-	•	Chat entry points:
-	•	Event Details page
-	•	My Bookings page
+### <login1>
+- Role(s): [PO/PM/Tech Lead/Developer/...]
+- Responsibilities: [To be completed]
 
-Chat Rules (Final)
-	•	Chat is event-based, not organization-wide.
-	•	Chat is available for upcoming events.
-	•	Access granted only when booking is CONFIRMED.
-	•	Only attendees can participate.
+### <login2>
+- Role(s): [PO/PM/Tech Lead/Developer/...]
+- Responsibilities: [To be completed]
 
-Modules Covered:
-	•	Real-Time Features (Major)
-	•	User Interaction (Major — chat part)
-	•	AI Moderation Integration
+### <login3>
+- Role(s): [PO/PM/Tech Lead/Developer/...]
+- Responsibilities: [To be completed]
 
-ROLE 5 — Frontend Architecture Engineer (Mr. Bit)
-Owns the Entire Application Frontend (Except Chat Backend Logic)
+---
 
-1️⃣ Application Structure
-	•	Next.js architecture
-	•	Routing & layout system
-	•	State management
-	•	Role-based UI rendering
+## Project Management
 
-2️⃣ Core Pages
-	•	Login / Register
-	•	Profile + avatar upload
-	•	Interests onboarding
-	•	Events feed
-	•	Event details
-	•	Booking interface
-	•	Organization area
-	•	Organization dashboard
-	•	Admin approval panel
+### Work Organization
+- Task distribution: [To be completed]
+- Meeting rhythm: [To be completed]
+- Planning/review process: [To be completed]
 
-3️⃣ Upload UI
-	•	Avatar upload
-	•	Organization logo upload
-	•	Event cover upload
+### Project Management Tools
+- [GitHub Issues / Projects / Trello / Jira / ...]
 
-4️⃣ Internationalization
-	•	EN / FR / AR support
-	•	RTL layout
-	•	Accessibility compliance
+### Communication Channels
+- [Discord / Slack / Mattermost / ...]
 
-5️⃣ Integration
-	•	Connect to backend APIs
-	•	Integrate chat UI provided by Safae
-	•	Handle API errors
-	•	Ensure zero console errors
+---
 
-Modules Covered:
-	•	Frontend Framework (Major)
-	•	Multi-language (Minor)
-	•	RTL (Minor)
-	•	File Upload (Minor — frontend integration)
+## Technical Stack
 
-10. Non-Negotiable Requirements
-	•	Multi-user concurrent usage
-	•	Server-side permission enforcement
-	•	Front + back validation
-	•	Zero console errors
-	•	HTTPS everywhere
-	•	Terms of Service + Privacy Policy pages
-	•	One-command Docker startup
+### Frontend
+- Technologies/frameworks: [To be completed]
+- Major libraries: [To be completed]
 
+### Backend
+- Technologies/frameworks: [To be completed]
+- Major libraries: [To be completed]
+
+### Database
+- System: [PostgreSQL/MySQL/MongoDB/...]
+- Why it was chosen: [To be completed]
+
+### Other Significant Technologies
+- [To be completed]
+
+### Technical Choices Justification
+- Choice 1: [To be completed]
+- Choice 2: [To be completed]
+- Choice 3: [To be completed]
+
+---
+
+## Database Schema
+
+### Structure Overview
+- [Short description of overall schema]
+
+### Tables/Collections and Relationships
+- [Entity A] -> [Relation] -> [Entity B]
+- [Entity C] -> [Relation] -> [Entity D]
+
+### Key Fields and Data Types
+- [Table/Collection Name]
+  - [field_name]: [data_type]
+  - [field_name]: [data_type]
+  - [field_name]: [data_type]
+
+### Visual Representation
+- [Link or embedded image to schema diagram]
+
+---
+
+## Features List
+
+| Feature | Description | Team Member(s) |
+|---|---|---|
+| [Feature name] | [Brief functionality] | [login(s)] |
+| [Feature name] | [Brief functionality] | [login(s)] |
+| [Feature name] | [Brief functionality] | [login(s)] |
+
+---
+
+## Modules
+
+### Selected Modules
+
+| Module Name | Type (Major/Minor) | Points | Justification | Implementation Summary | Team Member(s) |
+|---|---|---:|---|---|---|
+| [Module name] | [Major/Minor] | [2/1] | [Why selected] | [How implemented] | [login(s)] |
+| [Module name] | [Major/Minor] | [2/1] | [Why selected] | [How implemented] | [login(s)] |
+| [Module name] | [Major/Minor] | [2/1] | [Why selected] | [How implemented] | [login(s)] |
+
+### Points Calculation
+- Total Major modules: [N] x 2 = [X] points
+- Total Minor modules: [N] x 1 = [Y] points
+- Total module points: [X + Y]
+
+---
+
+## Individual Contributions
+
+### <login1>
+- Features/components implemented: [To be completed]
+- Modules implemented/contributed to: [To be completed]
+- Challenges faced: [To be completed]
+- How challenges were overcome: [To be completed]
+
+### <login2>
+- Features/components implemented: [To be completed]
+- Modules implemented/contributed to: [To be completed]
+- Challenges faced: [To be completed]
+- How challenges were overcome: [To be completed]
+
+### <login3>
+- Features/components implemented: [To be completed]
+- Modules implemented/contributed to: [To be completed]
+- Challenges faced: [To be completed]
+- How challenges were overcome: [To be completed]
+
+---
+
+## Resources
+
+### Classic References
+- [Official documentation]
+- [Article/tutorial/book]
+- [Video/course]
+
+### AI Usage Disclosure
+- Tools used: [To be completed]
+- Tasks where AI was used: [To be completed]
+- Project parts affected: [To be completed]
+- Validation/review process applied by team: [To be completed]
+
+---
+
+## Additional Information
+
+### Usage Examples
+- [To be completed]
+
+### Known Limitations
+- [To be completed]
+
+### Future Improvements
+- [To be completed]
+
+### License
+- [To be completed]
+
+### Credits
+- [To be completed]
